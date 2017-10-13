@@ -1,0 +1,42 @@
+FROM cassandra:3.11
+
+RUN mkdir /cassandra-test
+
+# adds the query files
+ADD files/* /cassandra-test/        
+
+#share the libs to a volume
+#VOLUME /usr/share/cassandra/lib
+
+ENV JACKSON_VERSION 1.9.13
+
+ENV OLD_JACKSON_VERSION 1.9.2
+
+ENV old_core_lib jackson-core-asl-${OLD_JACKSON_VERSION}.jar
+ENV old_mapper_lib jackson-mapper-asl-${OLD_JACKSON_VERSION}.jar
+
+#new names  of the jackson libs
+ENV core_lib  jackson-core-asl-${JACKSON_VERSION}.jar
+ENV mapper_lib jackson-mapper-asl-${JACKSON_VERSION}.jar
+
+ENV core_lib_url   http://central.maven.org/maven2/org/codehaus/jackson/jackson-core-asl/${JACKSON_VERSION}/jackson-core-asl-${JACKSON_VERSION}.jar
+ENV mapper_lib_url http://central.maven.org/maven2/org/codehaus/jackson/jackson-mapper-asl/${JACKSON_VERSION}/jackson-mapper-asl-${JACKSON_VERSION}.jar
+
+#install the wget
+RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates wget
+
+RUN ls -l /usr/share/cassandra/lib/
+
+RUN rm /usr/share/cassandra/lib/${old_core_lib} && rm /usr/share/cassandra/lib/${old_mapper_lib}
+RUN ls -l /usr/share/cassandra/lib/
+
+RUN echo "downloading  ${core_lib} to  /usr/share/cassandra/lib/${core_lib}"
+RUN echo "downloading  ${mapper_lib} to  /usr/share/cassandra/lib/${mapper_lib}"
+
+RUN wget -O /usr/share/cassandra/lib/${core_lib}  ${core_lib_url} && wget -O /usr/share/cassandra/lib/${mapper_lib}  ${mapper_lib_url}
+
+RUN echo "existing  libs"
+RUN ls -l /usr/share/cassandra/lib/
+
+#RUN wget -O /${core_lib}  ${core_lib_url}
+#RUN wget -O /${mapper_lib}  ${mapper_lib_url}
