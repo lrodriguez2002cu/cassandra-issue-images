@@ -1,0 +1,60 @@
+# cassandra-issue-images
+This repository has a couple of examples showing  a Cassandra (3.11.0) issue.
+The issue is visible after executing in an cqlsh the following
+
+``` sql
+## This works:
+select * from "metrics"."app_36437104577c4432_calculateMetrics" where application='application--1792657053' and session='X5' and user='user-1375724504';
+
+## This does not:
+--this does not work, giving the error described, something related to json encoding
+select json * from "metrics"."app_36437104577c4432_calculateMetrics" where application='application--1792657053' and session='X5' and user='user-1375724504';  
+
+```
+The result in the second case is:
+
+Cqlsh:
+
+![alt text]()
+
+
+# With the original image (only has added the data for showing the issue)
+_build the image_
+```
+docker build -t lrodriguez2002cu/cassandra-test:1.0 .
+
+#lets run the image
+docker run -d --name ctest lrodriguez2002cu/cassandra-test:1.0
+
+#exec the init (actually creates the keyspace, table, and insert the data into the table)
+
+docker exec -it -d ctest bash /cassandra-test/init.sh  
+
+#for opening the cqlsh
+
+docker exec -it ctest cqlsh   
+
+#See query.cql for the queries related to the issues  
+
+docker exec -it ctest cqlsh -f /cassandra-test/query.cql
+
+```
+# Image  with the replaced libs
+```
+#build the image with the replaced libraries
+docker build -t lrodriguez2002cu/cassandra-test-modif-libraries:1.0 -f  ./DockerfileReplacedLibs .
+
+#run the modified container
+docker run -d --name ctestmodif lrodriguez2002cu/cassandra-test-modif-libraries:1.0
+
+#setup the things
+docker exec -it -d ctestmodif bash /cassandra-test/init.sh  
+
+#run the queries
+docker exec -it ctestmodif cqlsh -f /cassandra-test/query.cql
+
+#docker rm -f ctestmodif ||  docker rmi -f lrodriguez2002cu/cassandra-test-modif-libraries:1.0
+#docker rmi -f lrodriguez2002cu/cassandra-test-modif-libraries:1.0
+#docker exec -it ctestmodif bash
+#docker exec -it ctestmodif ls -l /usr/share/cassandra/lib/
+```
