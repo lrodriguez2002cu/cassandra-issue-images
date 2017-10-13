@@ -15,7 +15,9 @@ The result in the second case is:
 
 Cqlsh:
 
-![alt text]()
+![alt text](https://github.com/lrodriguez2002cu/cassandra-issue-images/blob/master/issue/data.PNG?raw=true)
+
+*Note: sometimes it is needed to run the second query two times to see the issue.*
 
 
 # With the original image (only has added the data for showing the issue)
@@ -40,6 +42,11 @@ docker exec -it ctest cqlsh -f /cassandra-test/query.cql
 
 ```
 # Image  with the replaced libs
+In this case apparently the error does not happen. The image is the same as before, just that the jackson libraries jackson-core-asl-1.9.2.jar and jackson-mapper-asl-1.9.2.jar have been replaced by jackson-core-asl-1.9.13.jar and jackson-mapper-asl-1.9.13.jar, **note that those are also old.**
+
+ENV core_lib_url   http://central.maven.org/maven2/org/codehaus/jackson/jackson-core-asl/${JACKSON_VERSION}/jackson-core-asl-${JACKSON_VERSION}.jar
+ENV mapper_lib_url http://central.maven.org/maven2/org/codehaus/jackson/jackson-mapper-asl/${JACKSON_VERSION}/jackson-mapper-asl-${JACKSON_VERSION}.jar
+
 ```
 #build the image with the replaced libraries
 docker build -t lrodriguez2002cu/cassandra-test-modif-libraries:1.0 -f  ./DockerfileReplacedLibs .
